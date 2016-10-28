@@ -20,7 +20,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" axis="vertical" distribution="fillEqually" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="Gqy-b0-7Ue">
+                            <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" axis="vertical" distribution="fillEqually" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="Gqy-b0-7Ue">
                                 <frame key="frameInset" minX="22" minY="347" width="331" height="40"/>
                                 <color key="backgroundColor" red="0.41625739379999999" green="0.88305590389999999" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                             </stackView>
@@ -42,7 +42,7 @@
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="RxU-XZ-wvc" secondAttribute="height" multiplier="25:4" id="Spp-Pq-izA"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" type="boldSystem" pointSize="30"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="22"/>
                                 <color key="textColor" red="0.2196078431372549" green="0.51372549019607838" blue="0.45882352941176469" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
@@ -51,7 +51,7 @@
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="I3V-ih-1Ky" secondAttribute="height" multiplier="15:4" id="v5L-WC-Vg4"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" name="HelveticaNeue-Bold" family="Helvetica Neue" pointSize="16"/>
+                                <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="16"/>
                                 <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>

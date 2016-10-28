@@ -12,10 +12,15 @@ import AudioToolbox
 
 class ViewController: UIViewController {
     
-    static let buttonColor = UIColor(red: 0.14, green: 0.365, blue: 0.475, alpha: 1.0)
-    static let deEmphasizedButtonColor = UIColor(red: 0.14, green: 0.365, blue: 0.475, alpha: 0.3)
+    static let buttonBgColor = UIColor.TMRGBA(red: 52, green: 101, blue: 131, alpha: 255)
+    static let deEmphasizedButtonBgColor = UIColor.TMRGBA(red: 52, green: 101, blue: 131, alpha: 85)
+    static let correctAnswerTextColor = UIColor.TMRGBA(red: 64, green: 130, blue: 115, alpha: 255)
+    static let incorrectAnswerTextColor = UIColor.TMRGBA(red: 227, green: 145, blue: 80, alpha: 255)
     
     var gameSound: SystemSoundID = 0
+    var correctSound: SystemSoundID = 0
+    var incorrectSound: SystemSoundID = 0
+    var quizOver: SystemSoundID = 0
     
     var model = QuestionsModel()
     
@@ -29,9 +34,10 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        model.gameMode = .politicalHistory
         
-        loadGameStartSound()
+        model.gameMode = .dynamicMath
+        
+        loadGameSounds()
         
         // Start game
         playGameStartSound()
@@ -65,10 +71,11 @@ class ViewController: UIViewController {
                 let button = UIButton()
                 
                 button.heightAnchor.constraint(equalToConstant: 40).isActive = true
+                button.translatesAutoresizingMaskIntoConstraints = false
                 button.setTitle(answer, for: .normal)
                 button.setTitleColor(.white, for: .normal)
-                button.backgroundColor = ViewController.buttonColor
-                button.layer.cornerRadius = 10
+                button.backgroundColor = ViewController.buttonBgColor
+                button.layer.cornerRadius = 8
                 
                 button.tag = tagNumber
                 tagNumber += 1
@@ -79,7 +86,7 @@ class ViewController: UIViewController {
                 answerButtons.append(button)
             }
             
-            stackView.translatesAutoresizingMaskIntoConstraints = false
+//            stackView.translatesAutoresizingMaskIntoConstraints = false
         }
         
         playAgainButton.isHidden = true
@@ -98,7 +105,7 @@ class ViewController: UIViewController {
         
         for button in answerButtons {
             
-            button.backgroundColor = ViewController.deEmphasizedButtonColor
+            button.backgroundColor = ViewController.deEmphasizedButtonBgColor
             
             if button === sender {
                 
@@ -115,10 +122,14 @@ class ViewController: UIViewController {
             model.numberOfCorrectAnswers += 1
             
             correctLabel.text = "Correct!"
+            correctLabel.textColor = ViewController.correctAnswerTextColor
+            playCorrectSound()
             
         } else {
             
             correctLabel.text = "Sorry, that's not it."
+            correctLabel.textColor = ViewController.incorrectAnswerTextColor
+            playIncorrectSound()
         }
         
         correctLabel.isHidden = false
@@ -193,14 +204,37 @@ class ViewController: UIViewController {
         }
     }
     
-    func loadGameStartSound() {
-        let pathToSoundFile = Bundle.main.path(forResource: "GameSound", ofType: "wav")
-        let soundURL = URL(fileURLWithPath: pathToSoundFile!)
-        AudioServicesCreateSystemSoundID(soundURL as CFURL, &gameSound)
+    func loadSound(filename: String, systemSound: inout SystemSoundID) {
+        
+        if let pathToSoundFile = Bundle.main.path(forResource: filename, ofType: "wav") {
+            
+            let soundURL = URL(fileURLWithPath: pathToSoundFile)
+            AudioServicesCreateSystemSoundID(soundURL as CFURL, &systemSound)
+        }
+    }
+    
+    func loadGameSounds() {
+        
+        loadSound(filename: "GameSound", systemSound: &gameSound)
+        loadSound(filename: "Correct", systemSound: &correctSound)
+        loadSound(filename: "Incorrect", systemSound: &incorrectSound)
+        loadSound(filename: "QuizOver", systemSound: &quizOver)
     }
     
     func playGameStartSound() {
         AudioServicesPlaySystemSound(gameSound)
+    }
+    
+    func playCorrectSound() {
+        AudioServicesPlaySystemSound(correctSound)
+    }
+
+    func playIncorrectSound() {
+        AudioServicesPlaySystemSound(incorrectSound)
+    }
+
+    func playQuizOverSound() {
+        AudioServicesPlaySystemSound(quizOver)
     }
 }
 

@@ -150,8 +150,8 @@ struct QuestionsModel {
      
         let randomOperator = MathOperator(rawValue: GKRandomSource.sharedRandom().nextInt(upperBound: MathOperator.allValues.count))!
             
-        let operandA = GKRandomSource.sharedRandom().nextInt(upperBound: 100)
-        let operandB = GKRandomSource.sharedRandom().nextInt(upperBound: 100)
+        let operandA = GKRandomSource.sharedRandom().nextInt(upperBound: 19) + 1 // no zeroes
+        let operandB = GKRandomSource.sharedRandom().nextInt(upperBound: 19) + 1 // no zeroes
         
         switch randomOperator {
         case .add:

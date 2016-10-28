@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6BBFE1461DC37F8000AA8BDD /* RGBA.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BBFE1451DC37F8000AA8BDD /* RGBA.swift */; };
+		6BBFE1491DC38CEC00AA8BDD /* Correct.wav in Resources */ = {isa = PBXBuildFile; fileRef = 6BBFE1471DC38CEC00AA8BDD /* Correct.wav */; };
+		6BBFE14A1DC38CEC00AA8BDD /* Incorrect.wav in Resources */ = {isa = PBXBuildFile; fileRef = 6BBFE1481DC38CEC00AA8BDD /* Incorrect.wav */; };
+		6BBFE14C1DC3920500AA8BDD /* QuizOver.wav in Resources */ = {isa = PBXBuildFile; fileRef = 6BBFE14B1DC3920500AA8BDD /* QuizOver.wav */; };
 		6BF996F41DC277E30042208C /* Question.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BF996F31DC277E30042208C /* Question.swift */; };
 		6BF996F61DC27A750042208C /* QuestionsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BF996F51DC27A750042208C /* QuestionsModel.swift */; };
 		97093D3C1C913506001275BC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97093D3B1C913506001275BC /* AppDelegate.swift */; };
@@ -18,6 +22,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		6BBFE1451DC37F8000AA8BDD /* RGBA.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RGBA.swift; sourceTree = "<group>"; };
+		6BBFE1471DC38CEC00AA8BDD /* Correct.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Correct.wav; sourceTree = "<group>"; };
+		6BBFE1481DC38CEC00AA8BDD /* Incorrect.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Incorrect.wav; sourceTree = "<group>"; };
+		6BBFE14B1DC3920500AA8BDD /* QuizOver.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = QuizOver.wav; sourceTree = "<group>"; };
 		6BF996F31DC277E30042208C /* Question.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Question.swift; sourceTree = "<group>"; };
 		6BF996F51DC27A750042208C /* QuestionsModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QuestionsModel.swift; sourceTree = "<group>"; };
 		97093D381C913506001275BC /* TrueFalseStarter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrueFalseStarter.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -44,7 +52,10 @@
 		6BF996F71DC282BB0042208C /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				6BBFE1471DC38CEC00AA8BDD /* Correct.wav */,
+				6BBFE1481DC38CEC00AA8BDD /* Incorrect.wav */,
 				97093D521C932116001275BC /* GameSound.wav */,
+				6BBFE14B1DC3920500AA8BDD /* QuizOver.wav */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -71,6 +82,7 @@
 				97093D3B1C913506001275BC /* AppDelegate.swift */,
 				97093D3D1C913506001275BC /* ViewController.swift */,
 				6BF996F31DC277E30042208C /* Question.swift */,
+				6BBFE1451DC37F8000AA8BDD /* RGBA.swift */,
 				6BF996F51DC27A750042208C /* QuestionsModel.swift */,
 				97093D3F1C913506001275BC /* Main.storyboard */,
 				97093D421C913506001275BC /* Assets.xcassets */,
@@ -140,10 +152,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6BBFE14A1DC38CEC00AA8BDD /* Incorrect.wav in Resources */,
 				97093D531C932116001275BC /* GameSound.wav in Resources */,
 				97093D461C913506001275BC /* LaunchScreen.storyboard in Resources */,
 				97093D431C913506001275BC /* Assets.xcassets in Resources */,
+				6BBFE1491DC38CEC00AA8BDD /* Correct.wav in Resources */,
 				97093D411C913506001275BC /* Main.storyboard in Resources */,
+				6BBFE14C1DC3920500AA8BDD /* QuizOver.wav in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -155,6 +170,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6BF996F41DC277E30042208C /* Question.swift in Sources */,
+				6BBFE1461DC37F8000AA8BDD /* RGBA.swift in Sources */,
 				97093D3E1C913506001275BC /* ViewController.swift in Sources */,
 				97093D3C1C913506001275BC /* AppDelegate.swift in Sources */,
 				6BF996F61DC27A750042208C /* QuestionsModel.swift in Sources */,
