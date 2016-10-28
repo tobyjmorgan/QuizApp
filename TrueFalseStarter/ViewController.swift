@@ -39,9 +39,7 @@ class ViewController: UIViewController {
         
         loadGameSounds()
         
-        // Start game
-        playGameStartSound()
-        displayQuestion()
+        displayQuizOptions()
     }
 
     override func didReceiveMemoryWarning() {
@@ -49,9 +47,7 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-    func displayQuestion() {
-
-        correctLabel.isHidden = true
+    func clearOutButtons() {
         
         for subview in stackView.subviews {
             
@@ -59,6 +55,81 @@ class ViewController: UIViewController {
         }
         
         answerButtons.removeAll()
+    }
+    
+    func getAnswerButton(label: String) -> UIButton {
+        
+        let button = UIButton()
+        
+        button.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle(label, for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.backgroundColor = ViewController.buttonBgColor
+        button.layer.cornerRadius = 8
+        
+        return button
+    }
+    
+    func deemphasizeButtons(answerButton: UIButton) {
+        
+        for button in answerButtons {
+            
+            button.backgroundColor = ViewController.deEmphasizedButtonBgColor
+            
+            if button === answerButton {
+                
+                // do nothing
+                
+            } else {
+                
+                button.setTitleColor(UIColor(white: 1.0, alpha: 0.3), for: .normal)
+            }
+        }
+    }
+    
+    func displayQuizOptions() {
+        
+        questionField.text = "Please pick the quiz you would like to play:"
+        
+        correctLabel.isHidden = true
+        
+        clearOutButtons()
+
+        for option in QuestionsModel.GameMode.allValues {
+            
+            let button = getAnswerButton(label: option.description())
+            
+            button.tag = QuestionsModel.GameMode.allValues.index(of: option)!
+            
+            button.addTarget(self, action: #selector(onChooseQuizOption(_:)), for: .touchUpInside)
+            stackView.addArrangedSubview(button)
+            
+            answerButtons.append(button)
+            
+        }
+    }
+    
+    func onChooseQuizOption(_ sender: UIButton) {
+        
+        if QuestionsModel.GameMode.allValues.indices.contains(sender.tag) {
+            
+            deemphasizeButtons(answerButton: sender)
+            
+            let desiredMode = QuestionsModel.GameMode.allValues[sender.tag]
+            model.gameMode = desiredMode
+            
+            // Start game
+            perform(#selector(ViewController.displayQuestion), with: nil, afterDelay: 2.0)
+            perform(#selector(ViewController.playGameStartSound), with: nil, afterDelay: 2.0)
+        }
+    }
+    
+    func displayQuestion() {
+
+        correctLabel.isHidden = true
+        
+        clearOutButtons()
         
         if let question = model.getNextQuestion() {
             
@@ -68,14 +139,7 @@ class ViewController: UIViewController {
             
             for answer in question.answers {
                 
-                let button = UIButton()
-                
-                button.heightAnchor.constraint(equalToConstant: 40).isActive = true
-                button.translatesAutoresizingMaskIntoConstraints = false
-                button.setTitle(answer, for: .normal)
-                button.setTitleColor(.white, for: .normal)
-                button.backgroundColor = ViewController.buttonBgColor
-                button.layer.cornerRadius = 8
+                let button = getAnswerButton(label: answer)
                 
                 button.tag = tagNumber
                 tagNumber += 1
@@ -103,19 +167,7 @@ class ViewController: UIViewController {
     
     @IBAction func checkAnswer(_ sender: UIButton) {
         
-        for button in answerButtons {
-            
-            button.backgroundColor = ViewController.deEmphasizedButtonBgColor
-            
-            if button === sender {
-                
-                // do nothing
-                
-            } else {
-                
-                button.setTitleColor(UIColor(white: 1.0, alpha: 0.3), for: .normal)
-            }
-        }
+        deemphasizeButtons(answerButton: sender)
         
         if model.isCorrectResponse(response: sender.tag) {
             
@@ -138,19 +190,6 @@ class ViewController: UIViewController {
         
         perform(#selector(ViewController.displayQuestion), with: nil, afterDelay: 2.0)
         
-//        if sender === firstButton {
-//            response = 1
-//        } else if sender === secondButton {
-//            response = 2
-//        } else if sender === thirdButton {
-//            response = 3
-//        } else if sender === fourthButton {
-//            response = 4
-//        }
-//
-//        if let response = response {
-//            
-//        }
 //        
 //        // Increment the questions asked counter
 //        questionsAsked += 1

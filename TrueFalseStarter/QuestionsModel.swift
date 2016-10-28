@@ -11,11 +11,32 @@ import GameKit
 
 struct QuestionsModel {
     
+    enum GameState {
+        case notPlaying
+        case playing
+    }
+    
     enum GameMode {
         case original
         case politicalHistory
         case customQuiz
         case dynamicMath
+        
+        static let allValues = [GameMode.original, GameMode.politicalHistory, GameMode.customQuiz, GameMode.dynamicMath]
+        
+        func description() -> String {
+            
+            switch self {
+            case .original:
+                return "Original Quiz Questions"
+            case .politicalHistory:
+                return "Provided Sample Quiz Questions"
+            case .customQuiz:
+                return "Welsh Castles Quiz"
+            case .dynamicMath:
+                return "Math Quiz"
+            }
+        }
     }
     
     enum MathOperator: Int {
@@ -41,7 +62,7 @@ struct QuestionsModel {
         }
     }
     
-    static let numberOfQuestionsPerRound = 4
+    var numberOfQuestionsPerRound = 4
     
     private var usedQuestionIndexes: [Int] = []
     private var questions: [Question] = []
@@ -50,6 +71,17 @@ struct QuestionsModel {
     var numberOfQuestionsAnswered: Int = 0
     var numberOfCorrectAnswers: Int = 0
     var secondsRemaining: Int = 15
+    
+    var gameState: GameState = .notPlaying {
+        
+        didSet {
+            
+            if gameState != oldValue && gameState == .playing {
+                
+                resetModel()
+            }
+        }
+    }
     
     var gameMode: GameMode? {
 
@@ -68,6 +100,7 @@ struct QuestionsModel {
                 switch gameMode {
                     
                 case .original:
+                    numberOfQuestionsPerRound = 4
                     questions = [
                         Question(wording: "Only female koalas can whistle", answers: ["True", "False"], correctAnswer: 2),
                         Question(wording: "Blue whales are technically whales", answers: ["True", "False"], correctAnswer: 1),
@@ -76,6 +109,7 @@ struct QuestionsModel {
                     ]
                     
                 case .politicalHistory:
+                    numberOfQuestionsPerRound = 4
                     questions = [
                         Question(wording: "This was the only US President to serve more than two consecutive terms.", answers: ["George Washington", "Franklin D. Roosevelt", "Woodrow Wilson", "Andrew Jackson"], correctAnswer: 2),
                         Question(wording: "Which of the following countries has the most residents?", answers: ["Nigeria", "Russia", "Iran", "Vietnam"], correctAnswer: 1),
@@ -90,6 +124,7 @@ struct QuestionsModel {
                     ]
                     
                 case .customQuiz:
+                    numberOfQuestionsPerRound = 4
                     questions = [
                         Question(wording: "Only female koalas can whistle", answers: ["True", "False"], correctAnswer: 2),
                         Question(wording: "Blue whales are technically whales", answers: ["True", "False"], correctAnswer: 1),
@@ -98,6 +133,7 @@ struct QuestionsModel {
                     ]
                     
                 case .dynamicMath:
+                    numberOfQuestionsPerRound = 10
                     questions = []
                     
                 }
@@ -119,6 +155,50 @@ struct QuestionsModel {
         numberOfCorrectAnswers = 0
         secondsRemaining = 15
     }
+    
+    mutating func getNextQuestion() -> Question? {
+        
+        if gameMode == .dynamicMath {
+            
+            // generate math question
+            
+            currentQuestion = generateMathQuestion()
+            
+            return currentQuestion
+            
+        } else {
+            
+            guard questions.count > 0 else {
+                return nil
+            }
+            
+            var newQuestionIndex: Int
+            
+            repeat {
+                newQuestionIndex = GKRandomSource.sharedRandom().nextInt(upperBound: questions.count)
+            } while usedQuestionIndexes.contains(newQuestionIndex)
+            
+            currentQuestion = questions[newQuestionIndex]
+            usedQuestionIndexes.append(newQuestionIndex)
+            return currentQuestion
+        }
+    }
+    
+    func isCorrectResponse(response: Int) -> Bool {
+        
+        if let currentQuestion = currentQuestion {
+            
+            if currentQuestion.correctAnswer == response {
+                
+                return true
+            }
+        }
+        
+        return false
+    }
+
+    
+    // MARK: Dynamic Math Question generation
     
     func getAnIncorrectAnswer(correctAnswer: Int, existingAnswers: [Int]) -> Int {
         
@@ -182,44 +262,4 @@ struct QuestionsModel {
         }
     }
     
-    mutating func getNextQuestion() -> Question? {
-        
-        if gameMode == .dynamicMath {
-            
-            // generate math question
-            
-            currentQuestion = generateMathQuestion()
-            
-            return currentQuestion
-            
-        } else {
-            
-            guard questions.count > 0 else {
-                return nil
-            }
-            
-            var newQuestionIndex: Int
-            
-            repeat {
-                newQuestionIndex = GKRandomSource.sharedRandom().nextInt(upperBound: questions.count)
-            } while usedQuestionIndexes.contains(newQuestionIndex)
-            
-            currentQuestion = questions[newQuestionIndex]
-            usedQuestionIndexes.append(newQuestionIndex)
-            return currentQuestion
-        }
-    }
-    
-    func isCorrectResponse(response: Int) -> Bool {
-        
-        if let currentQuestion = currentQuestion {
-            
-            if currentQuestion.correctAnswer == response {
-                
-                return true
-            }
-        }
-        
-        return false
-    }
 }
