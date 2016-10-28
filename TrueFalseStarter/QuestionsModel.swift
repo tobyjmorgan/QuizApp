@@ -11,11 +11,6 @@ import GameKit
 
 struct QuestionsModel {
     
-    enum GameState {
-        case notPlaying
-        case playing
-    }
-    
     enum GameMode {
         case original
         case politicalHistory
@@ -71,17 +66,6 @@ struct QuestionsModel {
     var numberOfQuestionsAnswered: Int = 0
     var numberOfCorrectAnswers: Int = 0
     var secondsRemaining: Int = 15
-    
-    var gameState: GameState = .notPlaying {
-        
-        didSet {
-            
-            if gameState != oldValue && gameState == .playing {
-                
-                resetModel()
-            }
-        }
-    }
     
     var gameMode: GameMode? {
 

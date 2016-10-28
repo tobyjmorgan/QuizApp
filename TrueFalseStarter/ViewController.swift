@@ -34,6 +34,8 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        playAgainButton.layer.cornerRadius = 8
+        playAgainButton.isHidden = true
         
         model.gameMode = .dynamicMath
         
@@ -75,6 +77,7 @@ class ViewController: UIViewController {
         
         for button in answerButtons {
             
+            button.isEnabled = false
             button.backgroundColor = ViewController.deEmphasizedButtonBgColor
             
             if button === answerButton {
@@ -90,6 +93,7 @@ class ViewController: UIViewController {
     
     func displayQuizOptions() {
         
+        playAgainButton.isHidden = true
         questionField.text = "Please pick the quiz you would like to play:"
         
         correctLabel.isHidden = true
@@ -120,8 +124,8 @@ class ViewController: UIViewController {
             model.gameMode = desiredMode
             
             // Start game
-            perform(#selector(ViewController.displayQuestion), with: nil, afterDelay: 2.0)
-            perform(#selector(ViewController.playGameStartSound), with: nil, afterDelay: 2.0)
+            perform(#selector(ViewController.displayQuestion), with: nil, afterDelay: 1.0)
+            perform(#selector(ViewController.playGameStartSound), with: nil, afterDelay: 1.0)
         }
     }
     
@@ -161,7 +165,21 @@ class ViewController: UIViewController {
         // Display play again button
         playAgainButton.isHidden = false
         
-        questionField.text = "Way to go!\nYou got \(model.numberOfCorrectAnswers) out of \(model.numberOfQuestionsAnswered) correct!"
+        let threshold = Int(model.numberOfQuestionsPerRound / 2)
+        
+        if model.numberOfCorrectAnswers == model.numberOfQuestionsPerRound {
+            
+            questionField.text = "Wow, perfect score!\nYou got \(model.numberOfCorrectAnswers) out of \(model.numberOfQuestionsAnswered) correct!"
+
+        } else if model.numberOfCorrectAnswers > threshold {
+            
+            questionField.text = "Way to go!\nYou got \(model.numberOfCorrectAnswers) out of \(model.numberOfQuestionsAnswered) correct!"
+
+        } else {
+            
+            questionField.text = "Better luck next time!\nYou got \(model.numberOfCorrectAnswers) out of \(model.numberOfQuestionsAnswered) correct!"
+
+        }
         
     }
     
@@ -188,60 +206,27 @@ class ViewController: UIViewController {
         
         model.numberOfQuestionsAnswered += 1
         
-        perform(#selector(ViewController.displayQuestion), with: nil, afterDelay: 2.0)
-        
-//        
-//        // Increment the questions asked counter
-//        questionsAsked += 1
-//        
-//        let selectedQuestionDict = trivia[indexOfSelectedQuestion]
-//        let correctAnswer = selectedQuestionDict["Answer"]
-//        
-//        if (sender === trueButton &&  correctAnswer == "True") || (sender === falseButton && correctAnswer == "False") {
-//            correctQuestions += 1
-//            questionField.text = "Correct!"
-//        } else {
-//            questionField.text = "Sorry, wrong answer!"
-//        }
-//        
-//        loadNextRoundWithDelay(seconds: 2)
+        perform(#selector(ViewController.doWhatsNext), with: nil, afterDelay: 2.0)
     }
     
-    func nextRound() {
-//        if questionsAsked == questionsPerRound {
-//            // Game is over
-//            displayScore()
-//        } else {
-//            // Continue game
-//            displayQuestion()
-//        }
+    func doWhatsNext() {
+        
+        if model.numberOfQuestionsAnswered == model.numberOfQuestionsPerRound {
+            displayScore()
+        } else {
+            perform(#selector(ViewController.displayQuestion), with: nil, afterDelay: 2.0)
+        }
     }
     
     @IBAction func playAgain() {
-//        // Show the answer buttons
-//        trueButton.isHidden = false
-//        falseButton.isHidden = false
-//        
-//        questionsAsked = 0
-//        correctQuestions = 0
-//        nextRound()
+        
+        model.resetModel()
+        displayQuizOptions()
     }
     
 
     
-    // MARK: Helper Methods
-    
-    func loadNextRoundWithDelay(seconds: Int) {
-        // Converts a delay in seconds to nanoseconds as signed 64 bit integer
-        let delay = Int64(NSEC_PER_SEC * UInt64(seconds))
-        // Calculates a time value to execute the method given current time and delay
-        let dispatchTime = DispatchTime.now() + Double(delay) / Double(NSEC_PER_SEC)
-        
-        // Executes the nextRound method at the dispatch time on the main queue
-        DispatchQueue.main.asyncAfter(deadline: dispatchTime) {
-            self.nextRound()
-        }
-    }
+    // MARK: Sound Methods
     
     func loadSound(filename: String, systemSound: inout SystemSoundID) {
         
