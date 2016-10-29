@@ -11,14 +11,17 @@ import GameKit
 
 struct QuestionsModel {
     
-    enum GameMode {
+    // enumeration to distinguish between different available quiz types
+    enum GameType {
         case original
         case politicalHistory
         case customQuiz
         case dynamicMath
         
-        static let allValues = [GameMode.original, GameMode.politicalHistory, GameMode.customQuiz, GameMode.dynamicMath]
+        // creating a convenient way to count or iterate the cases
+        static let allValues = [GameType.original, GameType.politicalHistory, GameType.customQuiz, GameType.dynamicMath]
         
+        // providing useful external descriptions for each case
         func description() -> String {
             
             switch self {
@@ -34,54 +37,43 @@ struct QuestionsModel {
         }
     }
     
-    enum MathOperator: Int {
-        case add
-        case subtract
-        case multiply
-        case divide
-        
-        static let allValues = [MathOperator.add, MathOperator.subtract, MathOperator.multiply, MathOperator.divide]
-        
-        func description() -> String {
-            
-            switch self {
-            case .add:
-                return "+"
-            case .subtract:
-                return "-"
-            case .multiply:
-                return "*"
-            case .divide:
-                return "/"
-            }
-        }
-    }
-    
+    // variable not constant because this can vary based on the type of game being played
     var numberOfQuestionsPerRound = 4
     
+    // keeping track of the questions already asked, to avoid repetition within a round
     private var usedQuestionIndexes: [Int] = []
+    
+    // will be the collection of available questions which will change based on game type
     private var questions: [Question] = []
+    
+    // the current active question
     private var currentQuestion: Question?
     
+    // variables to keep track of players progress
     var numberOfQuestionsAnswered: Int = 0
     var numberOfCorrectAnswers: Int = 0
     var secondsRemaining: Int = 15
     
-    var gameMode: GameMode? {
+    // this variable determines which type of quiz is being played
+    // the didSet code allows the set of questions to be automatically
+    // changed whenever the game type is changed
+    var gameType: GameType? {
 
         didSet {
             
-            guard gameMode != oldValue else {
+            // if there is no change in the value, then do nothing
+            guard gameType != oldValue else {
                 return
             }
 
+            // a change in game type should reset the player progress
             resetModel()
             
             // unwrap optional
-            if let gameMode = gameMode {
+            if let gameType = gameType {
                 
-                // set up available questions based on gameMode
-                switch gameMode {
+                // set up available questions based on GameType
+                switch gameType {
                     
                 case .original:
                     numberOfQuestionsPerRound = 4
@@ -124,12 +116,15 @@ struct QuestionsModel {
                 
             } else {
                 
+                // dynamic math quiz does not have a predefined set of questions
+                // we will generate math problems dynamically if this is the selected game type
                 questions = []
             }
             
         }
     }
     
+    // reset player progress
     mutating func resetModel() {
      
         // clear out in-progress stuff
@@ -140,9 +135,12 @@ struct QuestionsModel {
         secondsRemaining = 15
     }
     
+    // determines the next question
+    // sets it as the current question
+    // and returns the question to the caller
     mutating func getNextQuestion() -> Question? {
         
-        if gameMode == .dynamicMath {
+        if gameType == .dynamicMath {
             
             // generate math question
             
@@ -152,26 +150,37 @@ struct QuestionsModel {
             
         } else {
             
-            guard questions.count > 0 else {
+            // if there are no questions set up, or if we have used all the available questions
+            // then there's nothing we can do here so return a nil question
+            guard questions.count > 0 &&
+                usedQuestionIndexes.count < questions.count else {
                 return nil
             }
             
             var newQuestionIndex: Int
             
+            // keep picking a random question index, until we are sure it hasn't already been used
             repeat {
                 newQuestionIndex = GKRandomSource.sharedRandom().nextInt(upperBound: questions.count)
             } while usedQuestionIndexes.contains(newQuestionIndex)
             
-            currentQuestion = questions[newQuestionIndex]
+            // capture this index as a question index we have already used (for next time)
             usedQuestionIndexes.append(newQuestionIndex)
+            
+            // now get the actual question ready to be returned
+            currentQuestion = questions[newQuestionIndex]
+
             return currentQuestion
         }
     }
     
+    // determines if the response was the correct response
     func isCorrectResponse(response: Int) -> Bool {
         
+        // unwrap the optional
         if let currentQuestion = currentQuestion {
             
+            // validate the response is the correct one
             if currentQuestion.correctAnswer == response {
                 
                 return true
@@ -182,8 +191,38 @@ struct QuestionsModel {
     }
 
     
+    /////////////////////////////////////////////////////////////////////////////////////////
     // MARK: Dynamic Math Question generation
     
+    // enumeration to capture the math operators that will be available
+    // for the dynamic math quiz questions
+    enum MathOperator: Int {
+        case add
+        case subtract
+        case multiply
+        case divide
+        
+        // creating a convenient way to count or iterate the cases
+        static let allValues = [MathOperator.add, MathOperator.subtract, MathOperator.multiply, MathOperator.divide]
+        
+        // providing useful external descriptions for each case
+        func description() -> String {
+            
+            switch self {
+            case .add:
+                return "+"
+            case .subtract:
+                return "-"
+            case .multiply:
+                return "*"
+            case .divide:
+                return "/"
+            }
+        }
+    }
+    
+    // create a random answer based on the actual answer, but that does not match
+    // any other answers previously generated (existing answers array)
     func getAnIncorrectAnswer(correctAnswer: Int, existingAnswers: [Int]) -> Int {
         
         var candidateAnswer: Int
@@ -195,28 +234,43 @@ struct QuestionsModel {
         return candidateAnswer
     }
     
+    // get the full answer set to be used, with randomly generated incorrect answers and
+    // the correct answer randomly placed in the answer set
+    // we are also returning the correct answer's position in the answer set
+    // (using a tuple to return both the answer set and the answer position at the same time)
+    // (love those tuples!)
     func getAnswerSet(correctAnswer: Int) -> ([String], Int) {
         
         let wrongAnswerA = getAnIncorrectAnswer(correctAnswer: correctAnswer, existingAnswers: [correctAnswer])
         let wrongAnswerB = getAnIncorrectAnswer(correctAnswer: correctAnswer, existingAnswers: [correctAnswer, wrongAnswerA])
         let wrongAnswerC = getAnIncorrectAnswer(correctAnswer: correctAnswer, existingAnswers: [correctAnswer, wrongAnswerA, wrongAnswerB])
         
+        // put the three wrong answers in an array of strings
         var answers = [String(wrongAnswerA), String(wrongAnswerB), String(wrongAnswerC)]
         
+        // randomly create the index position to insert the correct answer
         let answerPosition = GKRandomSource.sharedRandom().nextInt(upperBound: answers.count + 1)
 
+        // insert the correct answer
         answers.insert(String(correctAnswer), at: answerPosition)
         
+        // N.B. adding one the the answer position, because the conventioned used by
+        // all the question data in this app is the index position plus one
+        // i.e. index positions (0...n), correct answer positions (1...n+1)
         return (answers, answerPosition + 1)
     }
     
+    // generate a dynamically created math problem, with a set of answers, only one of which is correct
     func generateMathQuestion() -> Question {
      
+        // randomly pick the operator to use
         let randomOperator = MathOperator(rawValue: GKRandomSource.sharedRandom().nextInt(upperBound: MathOperator.allValues.count))!
-            
+        
+        // randomly pick two operands to use
         let operandA = GKRandomSource.sharedRandom().nextInt(upperBound: 19) + 1 // no zeroes
         let operandB = GKRandomSource.sharedRandom().nextInt(upperBound: 19) + 1 // no zeroes
         
+        // based on the operator, create and return a Quesiton object
         switch randomOperator {
         case .add:
             let correctAnswer = operandA + operandB
@@ -237,6 +291,10 @@ struct QuestionsModel {
             return Question(wording: wording, answers: answers, correctAnswer: answerPosition)
             
         case .divide:
+            // division questions are a little different
+            // to avoid floating point answers, the result of multiplying the operands
+            // will appear in the question along with one of the operands
+            // and the other operand will appear as the correct answer
             let tmp = operandA * operandB
             let correctAnswer = operandB
             let (answers, answerPosition) = getAnswerSet(correctAnswer: correctAnswer)

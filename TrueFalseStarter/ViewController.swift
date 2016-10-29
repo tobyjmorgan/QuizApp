@@ -37,7 +37,7 @@ class ViewController: UIViewController {
         playAgainButton.layer.cornerRadius = 8
         playAgainButton.isHidden = true
         
-        model.gameMode = .dynamicMath
+        model.gameType = .dynamicMath
         
         loadGameSounds()
         
@@ -100,11 +100,11 @@ class ViewController: UIViewController {
         
         clearOutButtons()
 
-        for option in QuestionsModel.GameMode.allValues {
+        for option in QuestionsModel.GameType.allValues {
             
             let button = getAnswerButton(label: option.description())
             
-            button.tag = QuestionsModel.GameMode.allValues.index(of: option)!
+            button.tag = QuestionsModel.GameType.allValues.index(of: option)!
             
             button.addTarget(self, action: #selector(onChooseQuizOption(_:)), for: .touchUpInside)
             stackView.addArrangedSubview(button)
@@ -116,12 +116,12 @@ class ViewController: UIViewController {
     
     func onChooseQuizOption(_ sender: UIButton) {
         
-        if QuestionsModel.GameMode.allValues.indices.contains(sender.tag) {
+        if QuestionsModel.GameType.allValues.indices.contains(sender.tag) {
             
             deemphasizeButtons(answerButton: sender)
             
-            let desiredMode = QuestionsModel.GameMode.allValues[sender.tag]
-            model.gameMode = desiredMode
+            let desiredMode = QuestionsModel.GameType.allValues[sender.tag]
+            model.gameType = desiredMode
             
             // Start game
             perform(#selector(ViewController.displayQuestion), with: nil, afterDelay: 1.0)
