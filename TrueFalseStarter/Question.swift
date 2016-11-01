@@ -3,7 +3,7 @@
 //  TrueFalseStarter
 //
 //  Created by redBred LLC on 10/27/16.
-//  Copyright © 2016 Treehouse. All rights reserved.
+//  Copyright © 2016 redBred LLC. All rights reserved.
 //
 
 import Foundation

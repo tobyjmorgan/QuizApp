@@ -3,7 +3,7 @@
 //  TrueFalseStarter
 //
 //  Created by redBred LLC on 10/27/16.
-//  Copyright © 2016 Treehouse. All rights reserved.
+//  Copyright © 2016 redBred LLC. All rights reserved.
 //
 
 import Foundation
@@ -13,29 +13,42 @@ struct QuestionsModel {
     
     // enumeration to distinguish between different available quiz types
     enum GameType {
-        case original
         case politicalHistory
         case customQuiz
         case dynamicMath
         
         // creating a convenient way to count or iterate the cases
-        static let allValues = [GameType.original, GameType.politicalHistory, GameType.customQuiz, GameType.dynamicMath]
+        static let allValues = [GameType.politicalHistory, GameType.customQuiz, GameType.dynamicMath]
         
         // providing useful external descriptions for each case
         func description() -> String {
             
             switch self {
-            case .original:
-                return "Original Quiz Questions"
             case .politicalHistory:
-                return "Provided Sample Quiz Questions"
+                return "Treehouse Quiz"
             case .customQuiz:
-                return "Welsh Castles Quiz"
+                return "My Swift Quiz"
             case .dynamicMath:
-                return "Math Quiz"
+                return "My Math Quiz"
+            }
+        }
+        
+        // providing background image filename if appropriate
+        func backgroundImage() -> String? {
+            
+            switch self {
+            case .politicalHistory:
+                return "treehouse.png"
+            case .customQuiz:
+                return "swift.png"
+            case .dynamicMath:
+                return "math.png"
             }
         }
     }
+    
+    // toggle value for lightning mode
+    var lightningMode: Bool = false
     
     // variable not constant because this can vary based on the type of game being played
     var numberOfQuestionsPerRound = 4
@@ -74,16 +87,7 @@ struct QuestionsModel {
                 
                 // set up available questions based on GameType
                 switch gameType {
-                    
-                case .original:
-                    numberOfQuestionsPerRound = 4
-                    questions = [
-                        Question(wording: "Only female koalas can whistle", answers: ["True", "False"], correctAnswer: 2),
-                        Question(wording: "Blue whales are technically whales", answers: ["True", "False"], correctAnswer: 1),
-                        Question(wording: "Camels are cannibalistic", answers: ["True", "False"], correctAnswer: 2),
-                        Question(wording: "All ducks are birds", answers: ["True", "False"], correctAnswer: 1)
-                    ]
-                    
+                                        
                 case .politicalHistory:
                     numberOfQuestionsPerRound = 4
                     questions = [
@@ -102,10 +106,14 @@ struct QuestionsModel {
                 case .customQuiz:
                     numberOfQuestionsPerRound = 4
                     questions = [
-                        Question(wording: "Only female koalas can whistle", answers: ["True", "False"], correctAnswer: 2),
-                        Question(wording: "Blue whales are technically whales", answers: ["True", "False"], correctAnswer: 1),
-                        Question(wording: "Camels are cannibalistic", answers: ["True", "False"], correctAnswer: 2),
-                        Question(wording: "All ducks are birds", answers: ["True", "False"], correctAnswer: 1)
+                        Question(wording: "In which year was Swift publicly released?", answers: ["2013", "2014", "2015"], correctAnswer: 2),
+                        Question(wording: "Who was Swift initially designed by?", answers: ["Steve Jobs", "Tim Cook", "Chris Lattner", "Andy Hertzfeld"], correctAnswer: 3),
+                        Question(wording: "Swift is a dynamically typed language.", answers: ["True", "False"], correctAnswer: 2),
+                        Question(wording: "Swift is a protocol-oriented language.", answers: ["True", "False"], correctAnswer: 1),
+                        Question(wording: "Swift is an object-oriented language.", answers: ["True", "False"], correctAnswer: 1),
+                        Question(wording: "A struct in Swift is a...", answers: ["Reference Type", "Value Type", "Protocol Type"], correctAnswer: 2),
+                        Question(wording: "The Swift programming language is...", answers: ["Safe", "Fast", "Expressive", "All of the above"], correctAnswer: 4)
+                        
                     ]
                     
                 case .dynamicMath:
@@ -132,7 +140,8 @@ struct QuestionsModel {
         currentQuestion = nil
         numberOfQuestionsAnswered = 0
         numberOfCorrectAnswers = 0
-        secondsRemaining = 15
+        
+        resetTimer()
     }
     
     // determines the next question
@@ -190,6 +199,19 @@ struct QuestionsModel {
         return false
     }
 
+    func getCorrectAnswerForCurrentQuestion() -> Int? {
+        
+        // unwrap the optional
+        if let currentQuestion = currentQuestion {
+            
+            return currentQuestion.correctAnswer
+        }
+        
+        return nil
+    }
+    
+    
+    
     
     /////////////////////////////////////////////////////////////////////////////////////////
     // MARK: Dynamic Math Question generation
@@ -304,4 +326,13 @@ struct QuestionsModel {
         }
     }
     
+    
+    
+    
+    /////////////////////////////////////////////////////////////////////////////////////////
+    // MARK: Lightning Mode 
+    
+    mutating func resetTimer() {
+        secondsRemaining = 15
+    }    
 }
