@@ -12,6 +12,8 @@ import AudioToolbox
 
 class ViewController: UIViewController {
     
+    // using a homegrown extension to UIColor called TMRGBA which makes it easier to generate
+    // colors if you know the 0-255 vallues of the color's RGBA values
     static let buttonBgColor = UIColor.TMRGBA(red: 52, green: 101, blue: 131, alpha: 255)
     static let deEmphasizedButtonBgColor = UIColor.TMRGBA(red: 52, green: 101, blue: 131, alpha: 85)
     static let correctAnswerTextColor = UIColor.TMRGBA(red: 64, green: 130, blue: 115, alpha: 255)
@@ -19,11 +21,13 @@ class ViewController: UIViewController {
     static let answerBGColorCorrect = UIColor.TMRGBA(red: 80, green: 255, blue: 80, alpha: 150)
     static let answerBGColorIncorrect = UIColor.TMRGBA(red: 255, green: 80, blue: 80, alpha: 150)
     
+    // sounds
     var gameSound: SystemSoundID = 0
     var correctSound: SystemSoundID = 0
     var incorrectSound: SystemSoundID = 0
     var quizOver: SystemSoundID = 0
     
+    // create an instance of the model
     var model = QuestionsModel()
     
     @IBOutlet weak var questionField: UILabel!
@@ -107,14 +111,18 @@ class ViewController: UIViewController {
         lightningModeSwitch.isHidden = false
         lightningModeLabel.isHidden = false
 
+        // make sure to reset any lingering progress from previous rounds
         model.resetModel()
         
+        refreshTimerLabel()
+        
+        // clear out any lingering buttons from previous activity
         clearOutAnswerButtons()
         
-        // iterate through the game types
+        // iterate through the game types generating option buttons
         for option in QuestionsModel.GameType.allValues {
             
-            // generate an answer button to use
+            // generate a button to use
             let button = getAnswerButton(label: option.description())
             
             // tag it for use in response detection later
@@ -129,14 +137,16 @@ class ViewController: UIViewController {
         }
     }
     
-    // set the quiz header to the description of the game type if available
+    // customize the GUI for the quiz selected
     func showQuizCustomizations() {
         
         if let gameType = model.gameType {
             
+             // set the quiz header to the description of the game type
             quizTypeLbl.text = gameType.description()
             quizTypeLbl.isHidden = false
             
+            // set the background image to an image related to the quiz selected
             if let filename = gameType.backgroundImage() {
 
                 bgImage.image = UIImage(named: filename)
@@ -152,7 +162,7 @@ class ViewController: UIViewController {
         }
     }
     
-    // hide the quiz header
+    // hide the quiz customizations
     func hideQuizCustomizations() {
         
         quizTypeLbl.isHidden = true
@@ -162,11 +172,11 @@ class ViewController: UIViewController {
     // method called when a quiz option (game type) is selected
     func onChooseQuizOption(_ sender: UIButton) {
         
-        lightningModeSwitch.isHidden = true
-        lightningModeLabel.isHidden = true
-
         // only move forward if the sender's tag exists as an index of the game type list
         if QuestionsModel.GameType.allValues.indices.contains(sender.tag) {
+            
+            lightningModeSwitch.isHidden = true
+            lightningModeLabel.isHidden = true
             
             disableAnswerButtons()
             indicateResponse(answerButton: sender)
@@ -180,17 +190,14 @@ class ViewController: UIViewController {
         }
     }
     
+    // called to kick off the quiz
     func startQuiz() {
         
         showQuizCustomizations()
         playGameStartSound()
         
-        if model.lightningMode {
-            refreshTimerLabel()
-            perform(#selector(ViewController.decrementCounter), with: nil, afterDelay: 1.0)
-        }
-        
-        displayQuestion()
+        // display a question
+        startRound()
     }
     
 
@@ -237,16 +244,23 @@ class ViewController: UIViewController {
     
     // deemphasize all answer buttons
     // but if it is the correct button leave the text white
+    // also indicate if the response was correct or not with 
+    // a background color change
     func indicateResponse(answerButton: UIButton?) {
         
+        // iterate through all the buttons
         for button in answerButtons {
             
+            // deemphasize
             button.backgroundColor = ViewController.deEmphasizedButtonBgColor
             
+            // if this was the answer buttons
             if button === answerButton {
                 
+                // fetch the correct answer from the model
                 if let correctAnswer = model.getCorrectAnswerForCurrentQuestion() {
                     
+                    // change background color based on if the answer was correct or not
                     if let answerButton = answerButton,
                         correctAnswer == answerButton.tag {
                         button.backgroundColor = ViewController.answerBGColorCorrect
@@ -269,7 +283,7 @@ class ViewController: UIViewController {
     // MARK: Question Processing
     
     // handle displaying the next question and its answer buttons
-    func displayQuestion() {
+    func startRound() {
 
         // hide the irrelevant screen elements (if they aren't already hidden)
         playAgainButton.isHidden = true
@@ -308,81 +322,103 @@ class ViewController: UIViewController {
                 answerButtons.append(button)
             }
             
-//            stackView.translatesAutoresizingMaskIntoConstraints = false
+            // only do this bit if we are in lightning mode
+            if model.lightningMode {
+                
+                model.resetTimer()
+                refreshTimerLabel()
+                
+                // wait one second then decrement the counter
+                perform(#selector(ViewController.decrementCounter), with: nil, afterDelay: 1.0)
+            }
             
+
         } else {
             
-            // should never happen, but if no question could be generated
+            // if no question could be generated (perhaps all questions have been used)
             // then ask the player to start over
             questionField.text = "Oops! Couldn't generate a new question. Please try starting over."
             playAgainButton.isHidden = false
         }
     }
     
+    // update the label with model's current value
     func refreshTimerLabel() {
         
         timerLabel.text = String(model.secondsRemaining)
     }
     
+    // decrement the counter and determine if we have run out of time
     func decrementCounter() {
         
+        // decrement number of seconds
         model.secondsRemaining -= 1
         
-        refreshTimerLabel()
-        
+        // have we run out of time?
         if model.secondsRemaining <= 0 {
+
+            // ensure timer never goes below zero
+            model.secondsRemaining = 0
             
-            timesUp()
+            refreshTimerLabel()
             
+            // ok, so we ran out of time
+            checkAnswer(nil)
+        
         } else {
             
+            refreshTimerLabel()
+
+            // wait one second then decrement the counter again
             perform(#selector(ViewController.decrementCounter), with: nil, afterDelay: 1.0)
         }
     }
     
-    func timesUp() {
-        
-        NSObject.cancelPreviousPerformRequests(withTarget: self)
-        
-        nextQuestionButton.isHidden = true
-        
-        clearOutAnswerButtons()
-        
-        indicateResponse(answerButton: nil)
-        
-        correctLabel.text = "Times Up!"
-        correctLabel.textColor = ViewController.incorrectAnswerTextColor
-        
-        // show the feedback label
-        correctLabel.isHidden = false
-        
-        // we've run out of time so end the round
-        endOfRound()
-    }
-    
     // evaluate response from answer button
-    func checkAnswer(_ sender: UIButton) {
+    func checkAnswer(_ sender: UIButton?) {
+        
+        if model.lightningMode {
+            
+            // make sure that the perform selector will not be called again for now
+            NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(ViewController.decrementCounter), object: nil)
+        }
         
         disableAnswerButtons()
         indicateResponse(answerButton: sender)
         
-        // ask the model if this response was correct
-        if model.isCorrectResponse(response: sender.tag) {
+        // unwrap the optional sender
+        if let sender = sender {
             
-            // increment the number of correct answers
-            model.numberOfCorrectAnswers += 1
-            
-            // correct feedback
-            correctLabel.text = "Correct!"
-            correctLabel.textColor = ViewController.correctAnswerTextColor
-            playCorrectSound()
+            // ask the model if this response was correct
+            if model.isCorrectResponse(response: sender.tag) {
+                
+                // increment the number of correct answers
+                model.numberOfCorrectAnswers += 1
+                
+                // correct feedback
+                correctLabel.text = "Correct!"
+                correctLabel.textColor = ViewController.correctAnswerTextColor
+                playCorrectSound()
+                
+            } else {
+                
+                // incorrect feedback
+                correctLabel.text = "Sorry, that's not it."
+                correctLabel.textColor = ViewController.incorrectAnswerTextColor
+                playIncorrectSound()
+            }
             
         } else {
             
-            // incorrect feedback
-            correctLabel.text = "Sorry, that's not it."
-            correctLabel.textColor = ViewController.incorrectAnswerTextColor
-            playIncorrectSound()
+            // sender was nil, so if we are also in lightning mode
+            // that means the player ran out of time before selecting an answer
+            if model.lightningMode {
+                
+                // time's up feedback
+                correctLabel.text = "Times Up!"
+                correctLabel.textColor = ViewController.incorrectAnswerTextColor
+                playIncorrectSound()
+            }
         }
         
         // show the feedback label
@@ -395,21 +431,25 @@ class ViewController: UIViewController {
         perform(#selector(ViewController.doWhatsNext), with: nil, afterDelay: 2.0)
     }
 
+    // decide if we have finished the quiz or not
     func doWhatsNext() {
         
+        // reinforce what the correct answer was
+        indicateCorrectAnswer()
+        
         if model.numberOfQuestionsAnswered == model.numberOfQuestionsPerRound {
-            // we've reached the end of the round
-            endOfRound()
-        } else {
             
-            // reinforce what the correct answer was
-            indicateCorrectAnswer()
+            // we've reached the end of the quiz
+            endQuiz()
+            
+        } else {
             
             // we're ready for the next question
             nextQuestionButton.isHidden = false
         }
     }
     
+    // indicate the correct answer by changing the background color
     func indicateCorrectAnswer() {
         
         if let correctAnswer = model.getCorrectAnswerForCurrentQuestion() {
@@ -420,13 +460,14 @@ class ViewController: UIViewController {
                     
                     button.backgroundColor = UIColor.TMRGBA(red: 80, green: 255, blue: 80, alpha: 150)
                     button.setTitleColor(UIColor.white, for: .normal)
+                    break
                 }
             }
         }
     }
     
     @IBAction func onNextQuestion() {
-        displayQuestion()
+        startRound()
     }
     
 
@@ -435,39 +476,32 @@ class ViewController: UIViewController {
     /////////////////////////////////////////////////////////////////
     // MARK: End of Round Processing
     
-    func endOfRound() {
+    func endQuiz() {
         
         nextQuestionButton.isHidden = true
         
         // Display play again button
         playAgainButton.isHidden = false
         
-        // figure out what the a half decent score would be
+        // figure out what a half decent score would be
         let threshold = Int(model.numberOfQuestionsPerRound / 2)
         
-        if model.lightningMode {
+        // assess the player's performance
+        if model.numberOfCorrectAnswers == model.numberOfQuestionsPerRound {
             
-            questionField.text = "You answered \(model.numberOfCorrectAnswers) questions correctly!"
+            // perfect score feedback
+            questionField.text = "Wow, perfect score!\nYou got \(model.numberOfCorrectAnswers) out of \(model.numberOfQuestionsAnswered) correct!"
+            
+        } else if model.numberOfCorrectAnswers > threshold {
+            
+            // good feedback
+            questionField.text = "Way to go!\nYou got \(model.numberOfCorrectAnswers) out of \(model.numberOfQuestionsAnswered) correct!"
             
         } else {
             
-            // assess the player's performance
-            if model.numberOfCorrectAnswers == model.numberOfQuestionsPerRound {
-                
-                // perfect score feedback
-                questionField.text = "Wow, perfect score!\nYou got \(model.numberOfCorrectAnswers) out of \(model.numberOfQuestionsAnswered) correct!"
-                
-            } else if model.numberOfCorrectAnswers > threshold {
-                
-                // good feedback
-                questionField.text = "Way to go!\nYou got \(model.numberOfCorrectAnswers) out of \(model.numberOfQuestionsAnswered) correct!"
-                
-            } else {
-                
-                // not so great feedback
-                questionField.text = "Better luck next time!\nYou got \(model.numberOfCorrectAnswers) out of \(model.numberOfQuestionsAnswered) correct!"
-                
-            }
+            // not so great feedback
+            questionField.text = "Better luck next time!\nYou got \(model.numberOfCorrectAnswers) out of \(model.numberOfQuestionsAnswered) correct!"
+            
         }
     }
     

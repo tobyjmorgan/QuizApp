@@ -13,18 +13,18 @@ struct QuestionsModel {
     
     // enumeration to distinguish between different available quiz types
     enum GameType {
-        case politicalHistory
+        case treehouse
         case customQuiz
         case dynamicMath
         
         // creating a convenient way to count or iterate the cases
-        static let allValues = [GameType.politicalHistory, GameType.customQuiz, GameType.dynamicMath]
+        static let allValues = [GameType.treehouse, GameType.customQuiz, GameType.dynamicMath]
         
         // providing useful external descriptions for each case
         func description() -> String {
             
             switch self {
-            case .politicalHistory:
+            case .treehouse:
                 return "Treehouse Quiz"
             case .customQuiz:
                 return "My Swift Quiz"
@@ -37,7 +37,7 @@ struct QuestionsModel {
         func backgroundImage() -> String? {
             
             switch self {
-            case .politicalHistory:
+            case .treehouse:
                 return "treehouse.png"
             case .customQuiz:
                 return "swift.png"
@@ -62,7 +62,7 @@ struct QuestionsModel {
     // the current active question
     private var currentQuestion: Question?
     
-    // variables to keep track of players progress
+    // variables to keep track of player's progress
     var numberOfQuestionsAnswered: Int = 0
     var numberOfCorrectAnswers: Int = 0
     var secondsRemaining: Int = 15
@@ -79,7 +79,7 @@ struct QuestionsModel {
                 return
             }
 
-            // a change in game type should reset the player progress
+            // a change in game type should reset the player's progress
             resetModel()
             
             // unwrap optional
@@ -88,7 +88,7 @@ struct QuestionsModel {
                 // set up available questions based on GameType
                 switch gameType {
                                         
-                case .politicalHistory:
+                case .treehouse:
                     numberOfQuestionsPerRound = 4
                     questions = [
                         Question(wording: "This was the only US President to serve more than two consecutive terms.", answers: ["George Washington", "Franklin D. Roosevelt", "Woodrow Wilson", "Andrew Jackson"], correctAnswer: 2),
@@ -118,14 +118,15 @@ struct QuestionsModel {
                     
                 case .dynamicMath:
                     numberOfQuestionsPerRound = 10
+                    // dynamic math quiz does not have a predefined set of questions
+                    // we will generate math problems dynamically if this is the selected game type
                     questions = []
                     
                 }
                 
             } else {
                 
-                // dynamic math quiz does not have a predefined set of questions
-                // we will generate math problems dynamically if this is the selected game type
+                // game type is nil, so no questions available
                 questions = []
             }
             
@@ -145,7 +146,7 @@ struct QuestionsModel {
     }
     
     // determines the next question
-    // sets it as the current question
+    // sets it to the currentQuestion variable
     // and returns the question to the caller
     mutating func getNextQuestion() -> Question? {
         
@@ -232,13 +233,13 @@ struct QuestionsModel {
             
             switch self {
             case .add:
-                return "+"
+                return "plus"
             case .subtract:
-                return "-"
+                return "minus"
             case .multiply:
-                return "*"
+                return "multiplied by"
             case .divide:
-                return "/"
+                return "divided by"
             }
         }
     }
@@ -276,7 +277,7 @@ struct QuestionsModel {
         // insert the correct answer
         answers.insert(String(correctAnswer), at: answerPosition)
         
-        // N.B. adding one the the answer position, because the conventioned used by
+        // N.B. adding one to the answer position, because the conventioned used by
         // all the question data in this app is the index position plus one
         // i.e. index positions (0...n), correct answer positions (1...n+1)
         return (answers, answerPosition + 1)
