@@ -90,31 +90,11 @@ struct QuestionsModel {
                                         
                 case .treehouse:
                     numberOfQuestionsPerRound = 4
-                    questions = [
-                        Question(wording: "This was the only US President to serve more than two consecutive terms.", answers: ["George Washington", "Franklin D. Roosevelt", "Woodrow Wilson", "Andrew Jackson"], correctAnswer: 2),
-                        Question(wording: "Which of the following countries has the most residents?", answers: ["Nigeria", "Russia", "Iran", "Vietnam"], correctAnswer: 1),
-                        Question(wording: "In what year was the United Nations founded?", answers: ["1918", "1919", "1945", "1954"], correctAnswer: 3),
-                        Question(wording: "The Titanic departed from the United Kingdom, where was it supposed to arrive?", answers: ["Paris", "Washington D.C.", "New York City", "Boston"], correctAnswer: 3),
-                        Question(wording: "Which nation produces the most oil?", answers: ["Iran", "Iraq", "Brazil", "Canada"], correctAnswer: 4),
-                        Question(wording: "Which country has most recently won consecutive World Cups in Soccer?", answers: ["Italy", "Brazil", "Argetina", "Spain"], correctAnswer: 2),
-                        Question(wording: "Which of the following rivers is longest?", answers: ["Yangtze", "Mississippi", "Congo", "Mekong"], correctAnswer: 2),
-                        Question(wording: "Which city is the oldest?", answers: ["Mexico City", "Cape Town", "San Juan", "Sydney"], correctAnswer: 1),
-                        Question(wording: "Which country was the first to allow women to vote in national elections?", answers: ["Poland", "United States", "Sweden", "Senegal"], correctAnswer: 1),
-                        Question(wording: "Which of these countries won the most medals in the 2012 Summer Games?", answers: ["France", "Germany", "Japan", "Great Britian"], correctAnswer: 4)
-                    ]
+                    questions = getTreehouseQuestions()
                     
                 case .customQuiz:
                     numberOfQuestionsPerRound = 4
-                    questions = [
-                        Question(wording: "In which year was Swift publicly released?", answers: ["2013", "2014", "2015"], correctAnswer: 2),
-                        Question(wording: "Who was Swift initially designed by?", answers: ["Steve Jobs", "Tim Cook", "Chris Lattner", "Andy Hertzfeld"], correctAnswer: 3),
-                        Question(wording: "Swift is a dynamically typed language.", answers: ["True", "False"], correctAnswer: 2),
-                        Question(wording: "Swift is a protocol-oriented language.", answers: ["True", "False"], correctAnswer: 1),
-                        Question(wording: "Swift is an object-oriented language.", answers: ["True", "False"], correctAnswer: 1),
-                        Question(wording: "A struct in Swift is a...", answers: ["Reference Type", "Value Type", "Protocol Type"], correctAnswer: 2),
-                        Question(wording: "The Swift programming language is...", answers: ["Safe", "Fast", "Expressive", "All of the above"], correctAnswer: 4)
-                        
-                    ]
+                    questions = getCustomQuestions()
                     
                 case .dynamicMath:
                     numberOfQuestionsPerRound = 10
@@ -131,6 +111,35 @@ struct QuestionsModel {
             }
             
         }
+    }
+    
+    func getTreehouseQuestions() -> [Question] {
+        
+        return [
+            Question(wording: "This was the only US President to serve more than two consecutive terms.", answers: ["George Washington", "Franklin D. Roosevelt", "Woodrow Wilson", "Andrew Jackson"], correctAnswer: 2),
+            Question(wording: "Which of the following countries has the most residents?", answers: ["Nigeria", "Russia", "Iran", "Vietnam"], correctAnswer: 1),
+            Question(wording: "In what year was the United Nations founded?", answers: ["1918", "1919", "1945", "1954"], correctAnswer: 3),
+            Question(wording: "The Titanic departed from the United Kingdom, where was it supposed to arrive?", answers: ["Paris", "Washington D.C.", "New York City", "Boston"], correctAnswer: 3),
+            Question(wording: "Which nation produces the most oil?", answers: ["Iran", "Iraq", "Brazil", "Canada"], correctAnswer: 4),
+            Question(wording: "Which country has most recently won consecutive World Cups in Soccer?", answers: ["Italy", "Brazil", "Argetina", "Spain"], correctAnswer: 2),
+            Question(wording: "Which of the following rivers is longest?", answers: ["Yangtze", "Mississippi", "Congo", "Mekong"], correctAnswer: 2),
+            Question(wording: "Which city is the oldest?", answers: ["Mexico City", "Cape Town", "San Juan", "Sydney"], correctAnswer: 1),
+            Question(wording: "Which country was the first to allow women to vote in national elections?", answers: ["Poland", "United States", "Sweden", "Senegal"], correctAnswer: 1),
+            Question(wording: "Which of these countries won the most medals in the 2012 Summer Games?", answers: ["France", "Germany", "Japan", "Great Britian"], correctAnswer: 4)
+        ]
+    }
+    
+    func getCustomQuestions() -> [Question] {
+        
+        return [
+            Question(wording: "In which year was Swift publicly released?", answers: ["2013", "2014", "2015"], correctAnswer: 2),
+            Question(wording: "Who was Swift initially designed by?", answers: ["Steve Jobs", "Tim Cook", "Chris Lattner", "Andy Hertzfeld"], correctAnswer: 3),
+            Question(wording: "Swift is a dynamically typed language.", answers: ["True", "False"], correctAnswer: 2),
+            Question(wording: "Swift is a protocol-oriented language.", answers: ["True", "False"], correctAnswer: 1),
+            Question(wording: "Swift is an object-oriented language.", answers: ["True", "False"], correctAnswer: 1),
+            Question(wording: "A struct in Swift is a...", answers: ["Reference Type", "Value Type", "Protocol Type"], correctAnswer: 2),
+            Question(wording: "The Swift programming language is...", answers: ["Safe", "Fast", "Expressive", "All of the above"], correctAnswer: 4)
+        ]
     }
     
     // reset player progress
